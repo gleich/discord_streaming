@@ -21,14 +21,11 @@ RUN mkdir ${CARGO_MAKE_TMP_DIR} && \
     unzip -d ${CARGO_MAKE_TMP_DIR} ${CARGO_MAKE_TMP_DIR}/cargo-make.zip && \
     mv ${CARGO_MAKE_TMP_DIR}/cargo-make-v${CARGO_MAKE_VERSION}-x86_64-unknown-linux-musl/cargo-make /usr/local/bin
 
+# Install cargo-watch
+RUN cargo install cargo-watch
+
 # Binary build
 RUN cargo make build-rust-dev
-
-# Copy of binary to smaller image
-# hadolint ignore=DL3006,DL3007
-FROM debian:stable-slim
-WORKDIR /
-COPY --from=builder /usr/src/app/target/debug/discord_streaming .
 
 # Install needed deps
 # hadolint ignore=DL3008
@@ -41,4 +38,4 @@ RUN apt-get update -y \
 ENV RUST_LOG info
 ENV RUST_BACKTRACE 1
 
-CMD ["./discord_streaming"]
+CMD ["cargo", "watch", "-x", "run"]
